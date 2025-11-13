@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -73,6 +74,40 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  // Hash the password with the cost of 13
+  this.password = await bcrypt.hash(this.password, 13);
+
+  this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  // Sometimes the saving to the database is slower than issuing the jwt
+  // So the passwordChangedAt is greater and the jwt timestamp
+  // As a result, the user will not be able to login using the new jwt
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+// Query middleware
+userSchema.pre(/^find/, function (next) {
+  // Here this keyword points to current query
+  this.find({ active: { $ne: false } });
+  next();
+});
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 

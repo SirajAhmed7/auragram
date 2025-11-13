@@ -12,7 +12,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-// const server = require('./app');
+const server = require('./app');
 
 const DB = process.env.DATABASE_URI.replace(
   '<password>',
