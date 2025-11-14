@@ -4,6 +4,22 @@ import { redirect } from "next/navigation";
 import { isLoggedIn, loginApi, signupApi } from "./services/authServices";
 import { setAuthCookies } from "./utils";
 import { cookies } from "next/headers";
+import { addComment } from "./services/postServices";
+// import api from "./services/baseUrl";
+
+export async function addCommentAction(postId, formData) {
+  const data = {
+    content: formData.get("content"),
+  };
+
+  const result = await addComment(postId, data);
+
+  return {
+    success: result.success,
+    error: result.error,
+    data: result.data,
+  };
+}
 
 export async function signupAction(prevState, formData) {
   // Convert FormData to object

@@ -1,31 +1,31 @@
 // const APIFeatures = require('../utils/apiFeatures');
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-// exports.getAll = (Model) =>
-//   catchAsync(async (req, res, next) => {
-//     // To allow for nested GET tours on tour (hack)
-//     let filter = {};
-//     if (req.params.tourId) filter = { tour: req.params.tourId };
+exports.getAll = (Model) =>
+  catchAsync(async (req, res, next) => {
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
 
-//     // EXECUTE QUERY
-//     const features = new APIFeatures(Model.find(filter), req.query)
-//       .filter()
-//       .sort()
-//       .limitFields()
-//       .paginate();
-//     // const docs = await features.query.explain();
-//     const docs = await features.query;
+    // EXECUTE QUERY
+    const features = new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    // const docs = await features.query.explain();
+    const docs = await features.query;
 
-//     // SEND RESPONSE
-//     res.status(200).json({
-//       status: 'success',
-//       results: docs.length, // No. of items in the response array
-//       data: {
-//         data: docs,
-//       },
-//     });
-//   });
+    // SEND RESPONSE
+    res.status(200).json({
+      status: 'success',
+      results: docs.length, // No. of items in the response array
+      data: {
+        data: docs,
+      },
+    });
+  });
 
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {

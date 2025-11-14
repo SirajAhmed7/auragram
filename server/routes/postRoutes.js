@@ -10,7 +10,10 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.route('/').post(postController.createPost);
+router
+  .route('/')
+  .get(postController.getAllPosts)
+  .post(postController.createPost);
 
 router
   .route('/:id')

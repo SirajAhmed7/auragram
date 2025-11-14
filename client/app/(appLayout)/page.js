@@ -1,5 +1,5 @@
-import Image from "next/image";
+import HomePosts from "@/components/posts/HomePosts";
 
 export default function Home() {
-  return <main className="h-[200vh] p-5"></main>;
+  return <HomePosts />;
 }
