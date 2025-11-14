@@ -52,11 +52,12 @@ postSchema.index({ user: 1, createdAt: -1 });
 postSchema.index({ createdAt: -1 });
 postSchema.index({ isPublished: 1, createdAt: -1 });
 
-// Virtual populate for comments
+// Virtual populate for top-level comments only
 postSchema.virtual('comments', {
   ref: 'Comment',
   foreignField: 'post',
   localField: '_id',
+  match: { parentComment: null }, // Only fetch top-level comments
 });
 
 // Update updatedAt timestamp before saving
