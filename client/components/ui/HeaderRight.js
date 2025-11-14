@@ -12,7 +12,7 @@ function HeaderRight() {
     <div className="flex justify-end gap-4">
       {isAuthenticated ? (
         <Link
-          href="/create"
+          href="/posts/create"
           className="flex gap-3 items-center text-white font-medium rounded-full bg-linear-to-br from-cyan-700 to-teal-500 px-4 py-1.5"
         >
           <Plus size={24} className="text-white" />

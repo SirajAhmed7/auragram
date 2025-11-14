@@ -21,10 +21,10 @@ function Sidebar() {
           href="/user/notifications"
         />
       </div>
-      {isAuthenticated && (
+      {isAuthenticated && user && (
         <Link href={"/user"} className="flex items-center gap-4 p-2">
           <Image
-            src={user.avatar}
+            src={user.avatar || "/images/default-avatar.jpg"}
             alt="User"
             width={36}
             height={36}

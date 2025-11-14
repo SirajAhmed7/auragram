@@ -7,10 +7,12 @@ export default function LogoutButton({ children, className }) {
   const { logout } = useUser();
 
   const handleLogout = async () => {
+    // Call the server action to clear the cookie and redirect
+    // This will redirect before the user state is cleared, preventing errors
+    await logoutAction();
+
     // Clear the user state in context
     logout();
-    // Call the server action to clear the cookie and redirect
-    await logoutAction();
   };
 
   return (

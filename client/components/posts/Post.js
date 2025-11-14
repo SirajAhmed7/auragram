@@ -7,15 +7,18 @@ import { Bookmark } from "lucide-react";
 import { Send } from "lucide-react";
 import AddComment from "./AddComment";
 import Comments from "./Comments";
+import PostOptions from "./PostOptions";
 
-function Post({ isHome, post }) {
+function Post({ isHome, post, currentUser }) {
+  const isOwner = currentUser && currentUser._id === post.user._id;
+
   return (
     <div className="w-full bg-white border border-slate-200 p-4 space-y-4 rounded-2xl relative">
       <div className="flex justify-between items-center">
         <Link href={"/users/" + post.user.username} className="block">
           <div className="flex items-center gap-4 relative z-10">
             <Image
-              src={post.user.avatar}
+              src={post.user.avatar || "/images/default-avatar.jpg"}
               alt={post.user.fullName}
               width={36}
               height={36}
@@ -25,14 +28,29 @@ function Post({ isHome, post }) {
           </div>
         </Link>
 
-        <p className="text-sm text-gray-500">{getTimeAgo(post.createdAt)}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-gray-500">{getTimeAgo(post.createdAt)}</p>
+          {isOwner && !isHome && <PostOptions post={post} />}
+        </div>
       </div>
-      <Link
-        href={"/posts/" + post._id}
-        className="block after:absolute after:inset-0 after:z-0"
-      >
-        <p>{post.content.slice(0, 100)}</p>
-      </Link>
+      {isHome ? (
+        <Link
+          href={"/posts/" + post._id}
+          className="block max-w-full after:absolute after:inset-0 after:z-0"
+        >
+          <p className="max-w-full">
+            {post.content.length < 350
+              ? post.content
+              : post.content.slice(0, 350) + "..."}
+          </p>
+        </Link>
+      ) : (
+        <p className="max-w-full">
+          {post.content.length > 350 && isHome
+            ? post.content.slice(0, 350) + "..."
+            : post.content}
+        </p>
+      )}
 
       <div className="flex items-center justify-between">
         <div className="flex gap-4 items-center">
@@ -69,7 +87,9 @@ function Post({ isHome, post }) {
         fullName={post.user.fullName}
       />
 
-      {!isHome && <Comments comments={post.comments} user={post.user} />}
+      {!isHome && (
+        <Comments postId={post._id} comments={post.comments} user={post.user} />
+      )}
     </div>
   );
 }

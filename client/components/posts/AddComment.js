@@ -1,18 +1,31 @@
+"use client";
+
 import { addCommentAction } from "@/lib/actions";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
 // import { useActionState } from "react";
 
 function AddComment({ postId, avatar, fullName }) {
-  // const { formAction } = useActionState(
-  //   addCommentAction.bind(null, postId),
-  //   postId
-  // );
-  const formAction = addCommentAction.bind(null, postId);
+  const [state, formAction] = useActionState(
+    addCommentAction.bind(null, postId),
+    postId
+  );
+  // const formAction = addCommentAction.bind(null, postId);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success) {
+      // Update user context with the returned user data
+      // Redirect to home
+      router.refresh();
+    }
+  }, [state, router]);
 
   return (
     <div className="flex items-center gap-4 z-10 relative">
       <Image
-        src={avatar}
+        src={avatar || "/images/default-avatar.jpg"}
         alt={fullName}
         width={32}
         height={32}

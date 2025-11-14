@@ -4,10 +4,37 @@ import { redirect } from "next/navigation";
 import { isLoggedIn, loginApi, signupApi } from "./services/authServices";
 import { setAuthCookies } from "./utils";
 import { cookies } from "next/headers";
-import { addComment } from "./services/postServices";
+import {
+  addComment,
+  createPost,
+  updatePost,
+  deletePost,
+} from "./services/postServices";
+import { createCommentReply } from "./services/commentsServices";
 // import api from "./services/baseUrl";
 
-export async function addCommentAction(postId, formData) {
+export async function addCommentReplyAction(
+  { level, commentId, postId },
+  prevState,
+  formData
+) {
+  const data = {
+    content: formData.get("content"),
+    level,
+    post: postId,
+  };
+  console.log(formData);
+
+  const result = await createCommentReply(commentId, data);
+
+  return {
+    success: result.success,
+    error: result.error,
+    data: result.data,
+  };
+}
+
+export async function addCommentAction(postId, prevStete, formData) {
   const data = {
     content: formData.get("content"),
   };
@@ -19,6 +46,55 @@ export async function addCommentAction(postId, formData) {
     error: result.error,
     data: result.data,
   };
+}
+
+export async function createPostAction(prevState, formData) {
+  const data = {
+    content: formData.get("content"),
+  };
+
+  const result = await createPost(data);
+
+  // return {
+  //   success: result.success,
+  //   error: result.error,
+  //   data: result.data,
+  // };
+  redirect("/posts/" + result.data._id);
+}
+
+export async function updatePostAction(postId, prevState, formData) {
+  const data = {
+    content: formData.get("content"),
+  };
+
+  const result = await updatePost(postId, data);
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error,
+    };
+  }
+
+  return {
+    success: true,
+    data: result.data,
+  };
+}
+
+export async function deletePostAction(postId) {
+  const result = await deletePost(postId);
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error,
+    };
+  }
+
+  // Redirect to home page after successful deletion
+  redirect("/");
 }
 
 export async function signupAction(prevState, formData) {
@@ -109,12 +185,7 @@ export async function getCurrentUser() {
 }
 
 export async function logoutAction() {
-  try {
-    const cookieStore = await cookies();
-    cookieStore.delete("jwt");
-    redirect("/login");
-  } catch (error) {
-    console.error("Error logging out:", error);
-    return { success: false, error: "Failed to logout" };
-  }
+  const cookieStore = await cookies();
+  cookieStore.delete("jwt");
+  redirect("/login");
 }
