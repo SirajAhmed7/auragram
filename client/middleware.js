@@ -5,7 +5,7 @@ export async function middleware(request) {
   // Get the auth cookie
   const authCookie = request.cookies.get("jwt");
 
-  if (request.nextUrl.pathname === "/") return NextResponse.next();
+  // if (request.nextUrl.pathname === "/") return NextResponse.next();
 
   // Define public routes that don't require authentication
   const publicRoutes = ["/login", "/signup"];
