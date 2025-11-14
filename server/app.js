@@ -10,6 +10,8 @@ const cors = require('cors');
 const deepSanitize = require('./utils/deepSanitize');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
+const postRouter = require('./routes/postRoutes');
+const commentRouter = require('./routes/commentRoutes');
 
 const app = express();
 
@@ -65,6 +67,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/posts', postRouter);
+app.use('/api/v1/comments', commentRouter);
 
 app.use(globalErrorHandler);
 

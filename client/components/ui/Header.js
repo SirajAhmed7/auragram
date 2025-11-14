@@ -1,7 +1,7 @@
-import { Plus } from "lucide-react";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import HeaderRight from "./HeaderRight";
 
 function Header() {
   return (
@@ -26,15 +26,8 @@ function Header() {
           className="text-base border border-slate-200 bg-slate-100 text-slate-700 placeholder-slate-400 w-full rounded-full py-1.5 pl-14 pr-4"
         />
       </div>
-      <div className="justify-self-end">
-        <Link
-          href="/create"
-          className="flex gap-3 items-center text-white font-medium rounded-full bg-linear-to-br from-cyan-700 to-teal-500 px-4 py-1.5"
-        >
-          <Plus size={24} className="text-white" />
-          <span>Create</span>
-        </Link>
-      </div>
+
+      <HeaderRight />
     </header>
   );
 }

@@ -1,14 +1,28 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import PasswordInput from "@/components/ui/PasswordInput";
 import { signupAction } from "@/lib/actions";
 import Image from "next/image";
 import SubmitButton from "@/components/ui/SubmitButton";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/UserContext";
+import Link from "next/link";
 
 function SignupPage() {
   const [state, formAction] = useActionState(signupAction, null);
+  const router = useRouter();
+  const { setUser } = useUser();
+
+  useEffect(() => {
+    if (state?.success) {
+      // Update user context with the returned user data
+      setUser(state.user);
+      // Redirect to home
+      router.push("/");
+    }
+  }, [state, router, setUser]);
 
   return (
     <div className="w-full h-full min-h-screen flex justify-center p-6">
@@ -22,6 +36,13 @@ function SignupPage() {
         <h1 className="text-3xl font-bold mt-8">Welcome to Auragram</h1>
         <p className="text-xl mt-5">
           Sign in to your account to start using Auragram
+        </p>
+        <p className="text-xl mt-2">
+          Or{" "}
+          <Link href="/login" className="text-cyan-700 underline">
+            log in
+          </Link>{" "}
+          with an existing account
         </p>
 
         <form className="flex flex-col w-md mt-7 space-y-4" action={formAction}>

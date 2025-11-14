@@ -139,3 +139,59 @@ exports.isLoggedIn = async (req, res, next) => {
     new AppError('Your are not logged in! Please log in to get access.', 401),
   );
 };
+
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check if it exists
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ').at(1);
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(
+      new AppError('Your are not logged in! Please log in to get access.', 401),
+    );
+  }
+
+  // 2) Verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) Check if user exists
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser) {
+    return next(
+      new AppError('The user belonging to this token no longer exist.', 401),
+    );
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
+  next();
+});
+
+exports.restrictToOwner = (Model) =>
+  catchAsync(async (req, _res, next) => {
+    // 1) Find the document
+    const doc = await Model.findById(req.params.id);
+
+    if (!doc) {
+      return next(new AppError('No document found with that ID', 404));
+    }
+
+    // 2) Check if the current user is the owner of the document
+    // Convert both to strings for comparison to handle ObjectId vs string
+    if (doc.user._id.toString() !== req.user._id.toString()) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+
+    // 3) Grant access if user is the owner
+    next();
+  });

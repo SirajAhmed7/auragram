@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { loginApi, signupApi } from "./services/authServices";
+import { isLoggedIn, loginApi, signupApi } from "./services/authServices";
 import { setAuthCookies } from "./utils";
 import { cookies } from "next/headers";
 
@@ -30,11 +30,13 @@ export async function signupAction(prevState, formData) {
 
   await setAuthCookies(result, cookies);
 
-  console.log("Signup successful, redirecting to /");
+  console.log("Signup successful");
 
-  // If successful, redirect to home page
-  // Note: redirect() throws, so this won't return
-  redirect("/");
+  // Return success - let client handle refresh and redirect
+  return {
+    success: true,
+    user: result.data?.data?.user || result.data?.user,
+  };
 }
 
 export async function loginAction(prevState, formData) {
@@ -59,9 +61,44 @@ export async function loginAction(prevState, formData) {
 
   await setAuthCookies(result, cookies);
 
-  console.log("Login successful, redirecting to /");
+  console.log("Login successful");
 
-  // If successful, redirect to home page
-  // Note: redirect() throws, so this won't return
-  redirect("/");
+  // Return success - let client handle refresh and redirect
+  return {
+    success: true,
+    user: result.data?.data?.user || result.data?.user,
+  };
+}
+
+export async function getCurrentUser() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("jwt")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const result = await isLoggedIn(token);
+
+    if (!result.success || !result.data) {
+      return null;
+    }
+
+    return result.data.data.user;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
+  }
+}
+
+export async function logoutAction() {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("jwt");
+    redirect("/login");
+  } catch (error) {
+    console.error("Error logging out:", error);
+    return { success: false, error: "Failed to logout" };
+  }
 }
