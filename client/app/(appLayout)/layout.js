@@ -9,7 +9,7 @@ export default function RootLayout({ children }) {
         <aside>
           <Sidebar />
         </aside>
-        <main className="h-screen pt-20 px-5 pb-5">{children}</main>
+        <main className="min-h-screen pt-20 px-5 pb-5">{children}</main>
         <aside></aside>
       </div>
     </div>
