@@ -8,6 +8,7 @@ import { useActionState } from "react";
 
 function Page() {
   const { user } = useUser();
+  // eslint-disable-next-line no-unused-vars
   const [_, formAction] = useActionState(createPostAction, null);
 
   return (

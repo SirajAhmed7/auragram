@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deletePostAction } from "@/lib/actions";
 
+// eslint-disable-next-line no-unused-vars
 function DeletePostButton({ postId, onClose }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);

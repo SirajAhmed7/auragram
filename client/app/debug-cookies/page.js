@@ -7,6 +7,7 @@ export default function DebugCookies() {
 
   useEffect(() => {
     // This will show all cookies accessible to JavaScript
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCookies(document.cookie || "No cookies found");
   }, []);
 
@@ -18,7 +19,8 @@ export default function DebugCookies() {
           <strong>Client-side cookies:</strong> {cookies}
         </p>
         <p className="mt-4 text-yellow-600">
-          Note: httpOnly cookies won't show here (that's good for security!)
+          Note: httpOnly cookies won&apos;t show here (that&apos;s good for
+          security!)
         </p>
       </div>
     </div>
