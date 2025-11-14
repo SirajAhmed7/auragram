@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-// const { promisify } = require('util');
+const { promisify } = require('util');
 
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -19,8 +19,8 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     ),
-
     httpOnly: true,
+    sameSite: 'lax',
   };
 
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
@@ -90,3 +90,52 @@ exports.login = catchAsync(async (req, res, next) => {
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
 });
+
+exports.isLoggedIn = async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ').at(1);
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (token) {
+    try {
+      // 1) Verify token
+      const decoded = await promisify(jwt.verify)(
+        token,
+        process.env.JWT_SECRET,
+      );
+
+      // 2) Check if user exists
+      const currentUser = await User.findById(decoded.id);
+
+      if (!currentUser) {
+        return next(new AppError('Please log in to get access.', 401));
+      }
+
+      // // 4) Check if user changed password after the token was issued
+      // if (currentUser.changedPasswordAfter(decoded.iat)) {
+      //   return next(new AppError('Please log in to get access.', 401));
+      // }
+
+      // THERE IS A LOGGED IN USER
+      // res.locals.user = currentUser;
+      // return next();
+      // currentUser.passwordChangedAt = undefined;
+
+      res.status(200).json({ status: 'success', data: { user: currentUser } });
+      return;
+    } catch {
+      return next(new AppError('Please log in to get access.', 401));
+      // return res.status(401).json({ loggedIn: 'N' });
+    }
+  }
+  next(
+    new AppError('Your are not logged in! Please log in to get access.', 401),
+  );
+};

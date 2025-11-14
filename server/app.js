@@ -4,10 +4,11 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const mongooseSanitize = require('express-mongo-sanitize');
 const { createServer } = require('http');
+const cors = require('cors');
 
 const deepSanitize = require('./utils/deepSanitize');
+const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
 
 const app = express();
@@ -16,6 +17,14 @@ const app = express();
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    optionsSuccessStatus: 200,
+  }),
+);
 
 // Set security HTTP headers
 app.use(helmet());
@@ -56,5 +65,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRouter);
+
+app.use(globalErrorHandler);
 
 module.exports = server;
