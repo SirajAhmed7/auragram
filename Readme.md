@@ -2,15 +2,19 @@
 
 A full-stack social media application with posts, nested comments, and user authentication.
 
+###Visit live at [auragram.vercel.app](https://auragram8.vercel.app/)
+
 ## Tech Stack
 
 **Backend**
+
 - Node.js + Express
 - MongoDB + Mongoose
 - JWT Authentication
 - bcrypt for password hashing
 
 **Frontend**
+
 - Next.js 15 (App Router)
 - React 19
 - Tailwind CSS
@@ -28,16 +32,19 @@ A full-stack social media application with posts, nested comments, and user auth
 ## Getting Started
 
 1. Install dependencies:
+
 ```bash
 cd server && pnpm install
 cd ../client && pnpm install
 ```
 
 2. Set up environment variables:
+
 - Create `.env` in `server/` with MongoDB URI, JWT secret, etc.
 - Create `.env.local` in `client/` with `NEXT_PUBLIC_BASE_URL=http://localhost:8000/`
 
 3. Run the application:
+
 ```bash
 # Terminal 1 - Server
 cd server
