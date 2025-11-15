@@ -2,7 +2,7 @@
 
 A full-stack social media application with posts, nested comments, and user authentication.
 
-###Visit live at [auragram.vercel.app](https://auragram8.vercel.app/)
+### Visit live at [auragram8.vercel.app](https://auragram8.vercel.app/)
 
 ## Tech Stack
 
