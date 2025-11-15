@@ -19,7 +19,7 @@
   --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
