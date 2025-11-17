@@ -46,9 +46,21 @@ exports.getOne = (Model, populateOptions) =>
       return next(new AppError(`No document found with this id`, 404));
     }
 
-    // Add isLiked field if user is authenticated and Model has the method
-    if (req.user && Model.addIsLikedField) {
-      await Model.addIsLikedField(doc, req.user._id);
+    // Add isLiked field if user is authenticated
+    if (req.user) {
+      // Add isLiked to the main document
+      if (Model.addIsLikedField) {
+        await Model.addIsLikedField(doc, req.user._id);
+      }
+
+      // Add isLiked to populated comments (if this is a Post with comments)
+      if (doc.comments && doc.comments.length > 0) {
+        const mongoose = require('mongoose');
+        const Comment = mongoose.model('Comment');
+        if (Comment.addIsLikedField) {
+          await Comment.addIsLikedField(doc.comments, req.user._id);
+        }
+      }
     }
 
     res.status(200).json({

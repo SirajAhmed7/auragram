@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { isLoggedIn, loginApi, signupApi } from "./services/authServices";
 import { setAuthCookies } from "./utils";
 import { cookies } from "next/headers";
@@ -11,6 +12,7 @@ import {
   deletePost,
 } from "./services/postServices";
 import { createCommentReply } from "./services/commentsServices";
+import { toggleLike } from "./services/likeService";
 // import api from "./services/baseUrl";
 
 export async function addCommentReplyAction(
@@ -188,4 +190,33 @@ export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete("jwt");
   redirect("/login");
+}
+
+export async function toggleLikeAction(contentType, contentId) {
+  try {
+    const result = await toggleLike(contentType, contentId);
+
+    if (result.success) {
+      // Revalidate all pages that might show this content
+      revalidatePath("/", "layout"); // Revalidate entire app
+
+      // Also revalidate specific paths if needed
+      if (contentType === "posts") {
+        revalidatePath(`/posts/${contentId}`);
+      }
+      // For comments, we don't have a direct route, but the layout revalidation will handle it
+    }
+
+    return {
+      success: result.success,
+      error: result.error,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Error in toggleLikeAction:", error);
+    return {
+      success: false,
+      error: "Failed to toggle like",
+    };
+  }
 }

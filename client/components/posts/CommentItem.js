@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useActionState } from "react";
+import LikeButton from "../ui/LikeButton";
 
 // Individual Comment Component
 function CommentItem({ postId, comment, user, level = 0 }) {
@@ -79,10 +80,17 @@ function CommentItem({ postId, comment, user, level = 0 }) {
 
           {/* Actions */}
           <div className="flex items-center gap-4 text-sm text-gray-500">
-            <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
+            {/* <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
               <Heart size={16} />
               <span>{comment.likesCount}</span>
-            </button>
+            </button> */}
+            <LikeButton
+              contentType="comments"
+              contentId={comment._id}
+              isLiked={comment.isLiked}
+              likesCount={comment.likesCount}
+              size="sm"
+            />
 
             <button
               className="hover:text-cyan-500 transition-colors"

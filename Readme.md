@@ -22,7 +22,7 @@ A full-stack social media application with posts, nested comments, and user auth
 
 ## Features
 
-- User authentication (signup/login with JWT)
+- User authentication  (signup/login with JWT) with email verification (simulation)
 - Create, edit, and delete posts
 - Nested comments and replies (up to 10 levels)
 - Like posts and comments

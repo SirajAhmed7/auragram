@@ -1,10 +1,8 @@
-import Image from "next/image";
 import { getTimeAgo } from "@/lib/utils";
-import { Heart } from "lucide-react";
-import { MessageCircle } from "lucide-react";
+import { Bookmark, MessageCircle, Send } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { Bookmark } from "lucide-react";
-import { Send } from "lucide-react";
+import LikeButton from "../ui/LikeButton";
 import AddComment from "./AddComment";
 import Comments from "./Comments";
 import PostOptions from "./PostOptions";
@@ -54,12 +52,18 @@ function Post({ isHome, post, currentUser }) {
 
       <div className="flex items-center justify-between">
         <div className="flex gap-4 items-center">
-          <div className="flex items-center gap-2 relative z-10">
+          {/* <div className="flex items-center gap-2 relative z-10">
             <button className="cursor-pointer hover:scale-125 transition-all duration-300">
               <Heart size={28} />
             </button>
             {post.likesCount}
-          </div>
+          </div> */}
+          <LikeButton
+            contentType="posts"
+            contentId={post._id}
+            likesCount={post.likesCount}
+            isLiked={post.isLiked}
+          />
 
           <div className="flex items-center gap-2 z-10">
             <Link
