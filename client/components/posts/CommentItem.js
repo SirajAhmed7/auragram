@@ -2,10 +2,9 @@
 
 import { addCommentReplyAction } from "@/lib/actions";
 import { getTimeAgo } from "@/lib/utils";
-import { Heart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import LikeButton from "../ui/LikeButton";
 
 // Individual Comment Component
