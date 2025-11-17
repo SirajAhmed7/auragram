@@ -159,18 +159,92 @@ commentSchema.methods.softDelete = async function () {
   this.deletedAt = Date.now();
   await this.save();
 
-  this.constructor.decrementPostCommentsCount(this.post);
+  // Decrement post comments count for this comment
+  await this.constructor.decrementPostCommentsCount(this.post);
 
-  // Optionally, you can also soft delete all replies
-  await this.constructor.updateMany(
-    { parentComment: this._id },
-    {
-      $set: {
-        isDeleted: true,
-        deletedAt: Date.now(),
+  // Decrement parent comment's replies count if this is a nested reply
+  if (this.parentComment) {
+    await this.constructor.decrementRepliesCount(this.parentComment);
+  }
+
+  // Count nested replies before deleting them
+  const nestedRepliesCount = await this.constructor.countDocuments({
+    parentComment: this._id,
+    isDeleted: false,
+  });
+
+  // Soft delete all nested replies
+  if (nestedRepliesCount > 0) {
+    await this.constructor.updateMany(
+      { parentComment: this._id, isDeleted: false },
+      {
+        $set: {
+          isDeleted: true,
+          deletedAt: Date.now(),
+        },
       },
-    },
+    );
+
+    // Decrement post comments count for all nested replies
+    for (let i = 0; i < nestedRepliesCount; i++) {
+      await this.constructor.decrementPostCommentsCount(this.post);
+    }
+  }
+};
+
+// Static method to add isLiked field for a specific user
+commentSchema.statics.addIsLikedField = async function (comments, userId) {
+  if (!userId || !comments) return comments;
+
+  const Like = mongoose.model('Like');
+  const isArray = Array.isArray(comments);
+  const commentsArray = isArray ? comments : [comments];
+
+  if (commentsArray.length === 0) return comments;
+
+  // Recursively collect all comment IDs including nested replies
+  const collectCommentIds = (commentsList) => {
+    const ids = [];
+    commentsList.forEach((comment) => {
+      ids.push(comment._id);
+      if (comment.replies && comment.replies.length > 0) {
+        ids.push(...collectCommentIds(comment.replies));
+      }
+    });
+    return ids;
+  };
+
+  const commentIds = collectCommentIds(commentsArray);
+
+  // Find all likes by this user for these comments in a single query
+  const likes = await Like.find({
+    user: userId,
+    contentType: 'Comment',
+    contentId: { $in: commentIds },
+  }).select('contentId');
+
+  // Create a Set of liked comment IDs for O(1) lookup
+  const likedCommentIds = new Set(
+    likes.map((like) => like.contentId.toString()),
   );
+
+  // Recursively add isLiked field to comments and their replies
+  const addIsLikedToComments = (commentsList) => {
+    commentsList.forEach((comment) => {
+      const isLiked = likedCommentIds.has(comment._id.toString());
+      // Use set() with strict: false to ensure the field is serialized
+      comment.set('isLiked', isLiked, { strict: false });
+
+      // Process nested replies
+      if (comment.replies && comment.replies.length > 0) {
+        addIsLikedToComments(comment.replies);
+      }
+    });
+  };
+
+  addIsLikedToComments(commentsArray);
+
+  return comments;
 };
 
 const Comment = mongoose.model('Comment', commentSchema);

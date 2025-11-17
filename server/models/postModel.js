@@ -76,6 +76,39 @@ postSchema.pre(/^find/, function (next) {
   next();
 });
 
+// Static method to add isLiked field for a specific user
+postSchema.statics.addIsLikedField = async function (posts, userId) {
+  if (!userId || !posts) return posts;
+
+  const Like = mongoose.model('Like');
+  const isArray = Array.isArray(posts);
+  const postsArray = isArray ? posts : [posts];
+
+  if (postsArray.length === 0) return posts;
+
+  // Get all post IDs
+  const postIds = postsArray.map((post) => post._id);
+
+  // Find all likes by this user for these posts in a single query
+  const likes = await Like.find({
+    user: userId,
+    contentType: 'Post',
+    contentId: { $in: postIds },
+  }).select('contentId');
+
+  // Create a Set of liked post IDs for O(1) lookup
+  const likedPostIds = new Set(likes.map((like) => like.contentId.toString()));
+
+  // Add isLiked field to each post using set() to ensure it's serialized
+  for (const post of postsArray) {
+    const isLiked = likedPostIds.has(post._id.toString());
+    // Use set() with strict: false to allow adding fields not in schema
+    post.set('isLiked', isLiked, { strict: false });
+  }
+
+  return posts;
+};
+
 const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;

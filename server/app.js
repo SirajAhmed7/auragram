@@ -10,6 +10,7 @@ const cors = require('cors');
 const deepSanitize = require('./utils/deepSanitize');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
+const likeRouter = require('./routes/likeRoutes');
 const postRouter = require('./routes/postRoutes');
 const commentRouter = require('./routes/commentRoutes');
 
@@ -67,6 +68,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1', likeRouter); // Must be before posts/comments to intercept like routes
 app.use('/api/v1/posts', postRouter);
 app.use('/api/v1/comments', commentRouter);
 

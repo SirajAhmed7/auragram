@@ -55,6 +55,7 @@ likeSchema.statics.incrementLikesCount = async function (
   });
 };
 
+// TODO: fix double decrement
 // Decrement likes count
 likeSchema.statics.decrementLikesCount = async function (
   contentType,
@@ -97,7 +98,7 @@ likeSchema.statics.toggleLike = async function (
       contentType: contentType,
       contentId: contentId,
     });
-    await this.decrementLikesCount(contentType, contentId);
+    // decrementLikesCount handled by post-findOneAndDelete middleware
     return { action: 'unliked', liked: false };
   } else {
     // Like: create new like

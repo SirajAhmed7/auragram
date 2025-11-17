@@ -15,7 +15,12 @@ exports.getAll = (Model) =>
       .limitFields()
       .paginate();
     // const docs = await features.query.explain();
-    const docs = await features.query;
+    let docs = await features.query;
+
+    // Add isLiked field if user is authenticated and Model has the method
+    if (req.user && Model.addIsLikedField) {
+      await Model.addIsLikedField(docs, req.user._id);
+    }
 
     // SEND RESPONSE
     res.status(200).json({
@@ -34,11 +39,16 @@ exports.getOne = (Model, populateOptions) =>
 
     if (populateOptions) query = query.populate(populateOptions);
 
-    const doc = await query;
+    let doc = await query;
     // const doc = await Model.findById(req.params.id).populate('reviews');
 
     if (!doc) {
       return next(new AppError(`No document found with this id`, 404));
+    }
+
+    // Add isLiked field if user is authenticated and Model has the method
+    if (req.user && Model.addIsLikedField) {
+      await Model.addIsLikedField(doc, req.user._id);
     }
 
     res.status(200).json({
